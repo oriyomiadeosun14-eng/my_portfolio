@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;600;700&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@500&display=swap"
       rel="stylesheet"
     />
     <style>
@@ -22,9 +22,9 @@
         --accent: #d8a186;
         --sky-soft: #1e2a33;
         --sage-soft: #1f2823;
-        --display: "Space Grotesk", Georgia, serif;
-        --body: "Inter", system-ui, sans-serif;
-        --mono: "JetBrains Mono", ui-monospace, monospace;
+        --display: "Bricolage Grotesque", system-ui, sans-serif;
+        --body: "Geist", system-ui, sans-serif;
+        --mono: "Geist Mono", ui-monospace, monospace;
       }
       * {
         box-sizing: border-box;
@@ -192,7 +192,17 @@
         content: "";
         position: absolute;
         inset: 0;
-        background: rgba(16, 20, 23, 0.74);
+        /* darker behind the text on the left, lighter on the right so the photo shows */
+        background: linear-gradient(
+          90deg,
+          rgba(16, 20, 23, 0.72) 0%,
+          rgba(16, 20, 23, 0.58) 45%,
+          rgba(16, 20, 23, 0.36) 100%
+        );
+      }
+      .hero h1,
+      .hero .lead {
+        text-shadow: 0 2px 14px rgba(0, 0, 0, 0.45);
       }
       .hero-inner {
         position: relative;
@@ -684,7 +694,9 @@
       }
 
       @media (prefers-reduced-motion: reduce) {
-        .to-top {
+        .to-top,
+        .side,
+        .scrim {
           transition: none;
         }
         .reveal {
@@ -737,42 +749,116 @@
           gap: 5px;
         }
       }
+      /* ---------- mobile drawer (hidden on desktop) ---------- */
+      .topbar,
+      .side-close,
+      .scrim {
+        display: none;
+      }
+      .icon-btn {
+        width: 42px;
+        height: 42px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: transparent;
+        color: var(--ink);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        padding: 0;
+      }
+      .icon-btn:hover,
+      .icon-btn:focus-visible {
+        border-color: var(--sky);
+        color: var(--sky);
+        outline: none;
+      }
+
       @media (max-width: 820px) {
         .shell {
-          grid-template-columns: 78px 1fr;
+          grid-template-columns: 1fr;
+        }
+        .topbar {
+          display: flex;
+          align-items: center;
+          gap: 14px;
+          position: sticky;
+          top: 0;
+          z-index: 80;
+          height: 60px;
+          padding: 0 16px;
+          background: var(--surface);
+          border-bottom: 1px solid var(--border);
+        }
+        #menuOpen {
+          margin-left: auto;
+        }
+        .topbar-name {
+          font-family: var(--display);
+          font-weight: 700;
+          font-size: 17px;
+          color: var(--ink);
+        }
+        .topbar-name:hover {
+          text-decoration: none;
         }
         .side {
-          padding: 18px 5px;
-          gap: 18px;
-          align-items: center;
+          position: fixed;
+          top: 0;
+          left: 0;
+          bottom: 0;
+          height: auto;
+          width: min(300px, 84vw);
+          z-index: 120;
+          padding: 28px 24px;
+          gap: 24px;
+          transform: translateX(-100%);
+          visibility: hidden;
+          transition:
+            transform 0.5s cubic-bezier(0.32, 0.72, 0, 1),
+            visibility 0.5s;
         }
-        .side h2,
-        .side .role,
-        .side-foot {
-          display: none;
+        .side.open {
+          transform: none;
+          visibility: visible;
+          box-shadow: 12px 0 40px rgba(0, 0, 0, 0.5);
+        }
+        .side-close {
+          display: inline-flex;
+          position: absolute;
+          top: 16px;
+          right: 16px;
         }
         .avatar {
-          width: 46px;
-          height: 46px;
-          border-width: 2px;
+          width: 80px;
+          height: 80px;
         }
-        .nav {
-          width: 100%;
-          gap: 3px;
-          margin: 0;
+        .scrim {
+          display: block;
+          position: fixed;
+          inset: 0;
+          z-index: 110;
+          background: rgba(0, 0, 0, 0.55);
+          opacity: 0;
+          visibility: hidden;
+          transition:
+            opacity 0.5s ease,
+            visibility 0.5s;
         }
-        .nav a {
-          flex-direction: column;
-          gap: 5px;
-          padding: 10px 2px;
-          font-size: 9.5px;
-          text-align: center;
-          line-height: 1.2;
-          letter-spacing: 0.02em;
+        .scrim.show {
+          opacity: 1;
+          visibility: visible;
         }
-        .nav a svg {
-          width: 19px;
-          height: 19px;
+        body.drawer-open {
+          overflow: hidden;
+        }
+        section {
+          scroll-margin-top: 60px;
+        }
+        /* text spans the full width on phones, so keep the overlay even */
+        .hero::before {
+          background: rgba(16, 20, 23, 0.6);
         }
         .hero {
           padding: 52px clamp(16px, 5vw, 76px) 58px;
@@ -792,8 +878,52 @@
   </head>
   <body id="top">
     <div class="progress" id="progress" aria-hidden="true"></div>
+    <header class="topbar">
+      <a class="topbar-name" href="#top">Oriyomi Adeosun</a>
+      <button
+        class="icon-btn"
+        id="menuOpen"
+        type="button"
+        aria-label="Open menu"
+        aria-controls="sidebar"
+        aria-expanded="false"
+      >
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 24 24"
+          width="22"
+          height="22"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+        >
+          <path d="M4 7h16M4 12h16M4 17h16" />
+        </svg>
+      </button>
+    </header>
+    <div class="scrim" id="scrim" aria-hidden="true"></div>
     <div class="shell">
       <aside class="side" id="sidebar">
+        <button
+          class="icon-btn side-close"
+          id="menuClose"
+          type="button"
+          aria-label="Close menu"
+        >
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 24 24"
+            width="20"
+            height="20"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+          >
+            <path d="M6 6l12 12M18 6L6 18" />
+          </svg>
+        </button>
         <div>
           <img
             class="avatar"
@@ -926,11 +1056,8 @@
           <div class="head reveal">
             <span class="ghost" aria-hidden="true">WORK</span>
             <p class="eyebrow">Selected work</p>
-            <h2 class="title">Two projects, explained properly</h2>
-            <p class="sub">
-              Rather than a wall of thumbnails, here is what I built and the
-              parts that were actually difficult.
-            </p>
+            <h2 class="title">My projects</h2>
+            <p class="sub">Here are some of the projects I've worked on.</p>
           </div>
           <article class="proj reveal">
             <div class="shot">
@@ -1396,6 +1523,54 @@
         window.addEventListener("scroll", requestUpdate, { passive: true });
         window.addEventListener("resize", requestUpdate);
         onScroll();
+
+        // mobile drawer
+        var side = document.getElementById("sidebar");
+        var scrim = document.getElementById("scrim");
+        var openBtn = document.getElementById("menuOpen");
+        var closeBtn = document.getElementById("menuClose");
+        var mobile = window.matchMedia("(max-width: 820px)");
+        function setDrawer(open) {
+          side.classList.toggle("open", open);
+          scrim.classList.toggle("show", open);
+          document.body.classList.toggle("drawer-open", open);
+          openBtn.setAttribute("aria-expanded", open ? "true" : "false");
+          if (open) {
+            closeBtn.focus();
+          }
+        }
+        openBtn.addEventListener("click", function () {
+          setDrawer(true);
+        });
+        closeBtn.addEventListener("click", function () {
+          setDrawer(false);
+          openBtn.focus();
+        });
+        scrim.addEventListener("click", function () {
+          setDrawer(false);
+        });
+        side.addEventListener("click", function (e) {
+          var link = e.target.closest("a");
+          if (
+            link &&
+            mobile.matches &&
+            link.getAttribute("href").charAt(0) === "#"
+          ) {
+            setDrawer(false);
+          }
+        });
+        document.addEventListener("keydown", function (e) {
+          if (e.key === "Escape" && side.classList.contains("open")) {
+            setDrawer(false);
+            openBtn.focus();
+          }
+        });
+        // reset if the window grows back to desktop width while open
+        mobile.addEventListener("change", function (e) {
+          if (!e.matches) {
+            setDrawer(false);
+          }
+        });
 
         // jump to the top without leaving #top in the address bar
         toTop.addEventListener("click", function (e) {
