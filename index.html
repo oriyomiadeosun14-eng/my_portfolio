@@ -750,11 +750,6 @@
         }
       }
       /* ---------- mobile drawer (hidden on desktop) ---------- */
-      .topbar,
-      .side-close,
-      .scrim {
-        display: none;
-      }
       .icon-btn {
         width: 42px;
         height: 42px;
@@ -773,6 +768,12 @@
         border-color: var(--sky);
         color: var(--sky);
         outline: none;
+      }
+      /* desktop: no top bar, close button or backdrop (must come after .icon-btn) */
+      .topbar,
+      .side-close,
+      .scrim {
+        display: none;
       }
 
       @media (max-width: 820px) {
